@@ -1,0 +1,2034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pillars of Faith Quest: Snakes & Ladders</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for a Kid-Friendly Look -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <style>
+        :root {
+            --font-heading: 'Fredoka', sans-serif;
+            --font-body: 'Nunito', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: radial-gradient(circle at top, #1e3a8a 0%, #0f172a 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        h1, h2, h3, h4, .font-heading {
+            font-family: var(--font-heading);
+        }
+
+        /* Subtle Islamic Star Background Pattern */
+        .bg-star-pattern {
+            background-image: radial-gradient(rgba(251, 191, 36, 0.14) 1.5px, transparent 1.5px),
+                              radial-gradient(rgba(56, 189, 248, 0.1) 1.5px, transparent 1.5px);
+            background-size: 36px 36px;
+            background-position: 0 0, 18px 18px;
+        }
+
+        /* 10x10 Board Container */
+        .board-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 680px;
+            aspect-ratio: 1 / 1;
+            margin: 0 auto;
+            border-radius: 1.25rem;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55), 0 0 0 6px #fbbf24, 0 0 0 10px #b45309;
+            overflow: hidden;
+            background: #fffbeb;
+        }
+
+        .board-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            grid-template-rows: repeat(10, 1fr);
+            width: 100%;
+            height: 100%;
+        }
+
+        .board-cell {
+            position: relative;
+            border: 1px solid rgba(180, 83, 9, 0.18);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 2px 4px;
+            transition: transform 0.2s ease, background-color 0.2s ease;
+        }
+
+        .board-cell.highlight-cell {
+            box-shadow: inset 0 0 0 3px #f59e0b;
+            z-index: 5;
+        }
+
+        /* Player Token Styling */
+        .player-token {
+            position: absolute;
+            width: 7.2%;
+            height: 7.2%;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 30;
+            transition: left 0.32s cubic-bezier(0.34, 1.56, 0.64, 1),
+                        top 0.32s cubic-bezier(0.34, 1.56, 0.64, 1),
+                        transform 0.25s ease;
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.45), 0 0 0 3px #ffffff;
+            pointer-events: none;
+        }
+
+        .player-token.hopping {
+            transform: translate(-50%, -50%) scale(1.28) translateY(-8px) !important;
+        }
+
+        .player-token.active-turn::after {
+            content: '';
+            position: absolute;
+            inset: -6px;
+            border-radius: 9999px;
+            border: 2.5px dashed #fbbf24;
+            animation: spinSlow 4s linear infinite;
+        }
+
+        @keyframes spinSlow {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 3D Dice Button Animation */
+        .dice-box {
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+        }
+        .dice-box:hover:not(:disabled) {
+            transform: translateY(-3px) scale(1.03);
+        }
+        .dice-box:active:not(:disabled) {
+            transform: translateY(1px) scale(0.97);
+        }
+        .dice-rolling {
+            animation: diceShake 0.45s infinite ease-in-out;
+        }
+
+        @keyframes diceShake {
+            0% { transform: rotate(0deg) scale(1.05); }
+            25% { transform: rotate(-16deg) scale(1.12); }
+            50% { transform: rotate(16deg) scale(1.08); }
+            75% { transform: rotate(-12deg) scale(1.12); }
+            100% { transform: rotate(0deg) scale(1.05); }
+        }
+
+        /* Floating Pulse for Star Squares */
+        @keyframes starPulse {
+            0%, 100% { transform: scale(1); opacity: 0.95; }
+            50% { transform: scale(1.18); opacity: 1; }
+        }
+        .star-icon-anim {
+            animation: starPulse 2.2s infinite ease-in-out;
+        }
+
+        /* Custom Scrollbar for Modals */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.4);
+            border-radius: 8px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #f59e0b;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body class="bg-star-pattern text-slate-100 flex flex-col min-h-screen">
+
+    <!-- TOP NAVIGATION BAR -->
+    <header class="w-full bg-slate-900/80 backdrop-blur-md border-b border-amber-400/30 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-2">
+            <!-- Brand Title -->
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/30 text-slate-900 text-xl font-bold">
+                    <i class="fa-solid fa-mosque"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-lg sm:text-2xl font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-emerald-300">
+                            Pillars of Faith Quest
+                        </h1>
+                        <span class="hidden md:inline-block text-xs font-bold uppercase px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                            Arkan al-Iman
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-300 hidden sm:block">
+                        Climb Ladders with Knowledge &amp; Block Snakes with your Faith Shield!
+                    </p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center gap-2 sm:gap-2.5">
+                <button id="btnStudyGuide" class="px-3 sm:px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-heading font-semibold text-xs sm:text-sm shadow-md shadow-emerald-600/30 flex items-center gap-1.5 transition active:scale-95">
+                    <i class="fa-solid fa-book-quran text-amber-200"></i>
+                    <span>Learn the 6 Pillars</span>
+                </button>
+
+                <button id="btnHowToPlay" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-amber-300 font-heading font-semibold text-xs sm:text-sm flex items-center gap-1.5 transition active:scale-95" title="How to Play">
+                    <i class="fa-solid fa-circle-question"></i>
+                    <span class="hidden md:inline">Rules</span>
+                </button>
+
+                <button id="btnSoundToggle" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-amber-300 flex items-center justify-center transition active:scale-95" title="Toggle Sound Effects">
+                    <i id="soundIcon" class="fa-solid fa-volume-high"></i>
+                </button>
+
+                <button id="btnNewGame" class="px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-heading font-bold text-xs sm:text-sm shadow-md shadow-amber-500/20 flex items-center gap-1.5 transition active:scale-95">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span class="hidden sm:inline">Reset</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT LAYOUT -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-4 grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+
+        <!-- LEFT COLUMN: THE 10x10 SNAKES & LADDERS BOARD (7 Cols on Desktop) -->
+        <section class="lg:col-span-7 flex flex-col items-center w-full">
+            <!-- Map Legend Bar -->
+            <div class="w-full max-w-[680px] mb-2.5 px-3 py-2 rounded-xl bg-slate-900/75 border border-slate-700/80 flex flex-wrap items-center justify-between gap-2 text-xs">
+                <div class="flex items-center gap-3 sm:gap-4 flex-wrap">
+                    <span class="flex items-center gap-1.5 font-bold text-emerald-300">
+                        <span class="w-3 h-3 rounded-sm bg-emerald-400 inline-block"></span>
+                        🪜 Ladder = Quiz Boost!
+                    </span>
+                    <span class="flex items-center gap-1.5 font-bold text-rose-300">
+                        <span class="w-3 h-3 rounded-sm bg-rose-500 inline-block"></span>
+                        🐍 Snake = Faith Shield Quiz!
+                    </span>
+                    <span class="flex items-center gap-1.5 font-bold text-amber-300">
+                        <i class="fa-solid fa-star text-amber-400"></i>
+                        Star = +2 Bonus Spaces!
+                    </span>
+                </div>
+                <div class="text-slate-300 font-semibold hidden sm:block">
+                    Goal: Reach <span class="text-amber-300 font-bold">Square 100</span> 🏆
+                </div>
+            </div>
+
+            <!-- The Game Board -->
+            <div class="board-wrapper" id="boardWrapper">
+                <!-- 100 Grid Cells injected by JS -->
+                <div id="boardGrid" class="board-grid"></div>
+
+                <!-- Dynamic SVG Overlay for Ladders & Snakes -->
+                <svg id="boardSvg" class="absolute inset-0 w-full h-full pointer-events-none z-20" viewBox="0 0 1000 1000" preserveAspectRatio="none"></svg>
+
+                <!-- Player 1 Token -->
+                <div id="tokenP1" class="player-token bg-gradient-to-br from-amber-400 to-orange-600 text-slate-950 font-extrabold active-turn" style="left: 5%; top: 95%; transform: translate(-50%, -50%);">
+                    <i class="fa-solid fa-star-and-crescent text-sm sm:text-base"></i>
+                </div>
+
+                <!-- Player 2 / Bot Token -->
+                <div id="tokenP2" class="player-token bg-gradient-to-br from-emerald-400 to-teal-700 text-white font-extrabold" style="left: 5%; top: 95%; transform: translate(-50%, -50%);">
+                    <i id="tokenP2Icon" class="fa-solid fa-robot text-sm sm:text-base"></i>
+                </div>
+            </div>
+        </section>
+
+        <!-- RIGHT COLUMN: CONTROLS, DICE, PLAYERS & PILLAR BADGES (5 Cols on Desktop) -->
+        <aside class="lg:col-span-5 flex flex-col gap-4 w-full max-w-[680px] mx-auto">
+
+            <!-- Mode & Topic Filter Card -->
+            <div class="bg-slate-900/85 backdrop-blur-md border border-slate-700/80 rounded-2xl p-3.5 shadow-xl">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <!-- Game Mode Switcher -->
+                    <div class="flex items-center bg-slate-800 p-1 rounded-xl border border-slate-700">
+                        <button id="mode1P" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-heading font-semibold bg-amber-400 text-slate-950 shadow transition">
+                            <i class="fa-solid fa-user-astronaut mr-1"></i> 1 Player vs Bot
+                        </button>
+                        <button id="mode2P" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-heading font-semibold text-slate-300 hover:text-white transition">
+                            <i class="fa-solid fa-user-group mr-1"></i> 2 Players
+                        </button>
+                    </div>
+
+                    <!-- Pillar Focus Filter -->
+                    <div class="flex items-center gap-1.5 flex-1 min-w-[170px]">
+                        <label for="pillarFilter" class="text-xs text-slate-400 font-bold whitespace-nowrap">Quiz Topic:</label>
+                        <select id="pillarFilter" class="w-full bg-slate-800 border border-slate-600 text-amber-200 text-xs rounded-xl px-2.5 py-1.5 font-bold focus:outline-none focus:border-amber-400">
+                            <option value="all">🌟 All 6 Pillars of Faith</option>
+                            <option value="1">1. Belief in Allah</option>
+                            <option value="2">2. Belief in the Angels</option>
+                            <option value="3">3. Belief in the Holy Books</option>
+                            <option value="4">4. Belief in the Prophets</option>
+                            <option value="5">5. Day of Judgment</option>
+                            <option value="6">6. Divine Decree (Qadar)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Kid Practice Toggle when playing vs Bot -->
+                <div id="botQuizOptionRow" class="mt-2.5 pt-2 border-t border-slate-800 flex items-center justify-between text-xs text-slate-300">
+                    <label for="chkAnswerForBot" class="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" id="chkAnswerForBot" checked class="rounded text-amber-400 focus:ring-0 w-4 h-4 accent-amber-400" />
+                        <span>Let me answer <strong class="text-emerald-300">Hudhud Bot's</strong> quiz questions too (Extra Fun &amp; Practice!)</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- DICE ROLLER & TURN BANNER -->
+            <div class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 border-2 border-amber-400/50 rounded-2xl p-4 shadow-2xl relative overflow-hidden">
+                <div class="flex items-center justify-between gap-4">
+                    <!-- Turn Details -->
+                    <div class="flex-1">
+                        <span class="text-xs font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/30" id="turnBadge">
+                            Player 1's Turn
+                        </span>
+                        <h2 id="turnTitle" class="text-xl sm:text-2xl font-heading font-bold text-white mt-1.5">
+                            Explorer Noor
+                        </h2>
+                        <p id="gameStatusText" class="text-xs sm:text-sm text-slate-300 mt-1 leading-snug">
+                            Roll the dice to start your journey across the 6 Pillars of Faith!
+                        </p>
+                    </div>
+
+                    <!-- Interactive Dice Button -->
+                    <div class="flex flex-col items-center">
+                        <button id="btnRollDice" class="dice-box w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br from-amber-300 via-amber-400 to-orange-500 text-slate-950 shadow-xl shadow-amber-500/30 border-4 border-white flex flex-col items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                            <div id="diceFaceContainer" class="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center">
+                                <!-- SVG Dice rendered by JS -->
+                            </div>
+                        </button>
+                        <span class="text-[11px] font-heading font-bold uppercase tracking-wider text-amber-300 mt-1.5">
+                            Tap or Spacebar
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PLAYER CARDS & 6 PILLARS BADGE TRACKERS -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3.5">
+                <!-- Player 1 Card -->
+                <div id="cardP1" class="bg-slate-900/90 border-2 border-amber-400 rounded-2xl p-3.5 shadow-lg transition-all">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-600 text-slate-950 flex items-center justify-center font-bold text-lg shadow">
+                                <i class="fa-solid fa-star-and-crescent"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-1.5">
+                                    <h3 class="font-heading font-bold text-base text-white">Explorer Noor (P1)</h3>
+                                    <span id="p1ActiveDot" class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping"></span>
+                                </div>
+                                <p class="text-xs text-slate-400">
+                                    Correct Answers: <strong id="p1Score" class="text-emerald-400">0</strong>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[11px] uppercase text-slate-400 font-bold block">Square</span>
+                            <span id="p1Pos" class="text-2xl font-heading font-extrabold text-amber-300">1</span>
+                        </div>
+                    </div>
+
+                    <!-- 6 Pillars Badges for P1 -->
+                    <div class="mt-3 pt-2.5 border-t border-slate-800">
+                        <div class="flex items-center justify-between text-[11px] text-slate-400 mb-1.5">
+                            <span>6 Pillars Badges Earned:</span>
+                            <span id="p1BadgeCount" class="font-bold text-amber-300">0 / 6</span>
+                        </div>
+                        <div id="p1BadgesGrid" class="grid grid-cols-6 gap-1.5">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Player 2 / Bot Card -->
+                <div id="cardP2" class="bg-slate-900/90 border-2 border-slate-700 rounded-2xl p-3.5 shadow-lg transition-all">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-700 text-white flex items-center justify-center font-bold text-lg shadow">
+                                <i id="cardP2Icon" class="fa-solid fa-robot"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-1.5">
+                                    <h3 id="p2Name" class="font-heading font-bold text-base text-white">Hudhud Bot</h3>
+                                    <span id="p2ActiveDot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping hidden"></span>
+                                </div>
+                                <p class="text-xs text-slate-400">
+                                    Correct Answers: <strong id="p2Score" class="text-emerald-400">0</strong>
+                                </p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[11px] uppercase text-slate-400 font-bold block">Square</span>
+                            <span id="p2Pos" class="text-2xl font-heading font-extrabold text-emerald-300">1</span>
+                        </div>
+                    </div>
+
+                    <!-- 6 Pillars Badges for P2 -->
+                    <div class="mt-3 pt-2.5 border-t border-slate-800">
+                        <div class="flex items-center justify-between text-[11px] text-slate-400 mb-1.5">
+                            <span>6 Pillars Badges Earned:</span>
+                            <span id="p2BadgeCount" class="font-bold text-emerald-300">0 / 6</span>
+                        </div>
+                        <div id="p2BadgesGrid" class="grid grid-cols-6 gap-1.5">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RECENT ADVENTURE LOG -->
+            <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-3 text-xs">
+                <div class="flex items-center justify-between text-slate-400 font-bold uppercase tracking-wider mb-1.5">
+                    <span><i class="fa-solid fa-scroll text-amber-400 mr-1"></i> Adventure Log</span>
+                    <span id="questionBankCounter" class="text-[11px] text-emerald-400">36 Quiz Cards Ready</span>
+                </div>
+                <div id="adventureLog" class="space-y-1 max-h-24 overflow-y-auto text-slate-300 pr-1">
+                    <div>🌟 Assalamu Alaikum! Roll the dice to begin your quest to Square 100!</div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- ==========================================
+         QUIZ CHALLENGE MODAL (LADDER / SNAKE / STAR)
+    =========================================== -->
+    <div id="quizModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bg-slate-900 border-2 border-amber-400 rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl relative animate-[fadeIn_0.2s_ease-out]">
+            <!-- Event Type Banner (Ladder / Snake / Star) -->
+            <div id="quizEventBanner" class="rounded-2xl p-3.5 mb-4 flex items-center gap-3 border">
+                <div id="quizEventIcon" class="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shrink-0">
+                    🪜
+                </div>
+                <div>
+                    <span id="quizEventTitle" class="text-xs font-extrabold uppercase tracking-wider block">
+                        Ladder Boost Challenge!
+                    </span>
+                    <p id="quizEventSubtitle" class="text-sm font-bold text-white">
+                        Answer right to climb from Square 4 to Square 25!
+                    </p>
+                </div>
+            </div>
+
+            <!-- Pillar Category Badge -->
+            <div class="flex items-center justify-between gap-2 mb-3">
+                <span id="quizPillarBadge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
+                    <i class="fa-solid fa-star"></i> Pillar 1: Belief in Allah
+                </span>
+                <span id="quizTurnOwner" class="text-xs font-bold text-amber-300">
+                    Explorer Noor's Question
+                </span>
+            </div>
+
+            <!-- Question Text -->
+            <h3 id="quizQuestionText" class="text-lg sm:text-xl font-heading font-bold text-white leading-snug mb-4">
+                What does "Al-Khaliq", one of Allah's Beautiful Names, mean?
+            </h3>
+
+            <!-- 4 Answer Choices -->
+            <div id="quizOptionsContainer" class="space-y-2.5">
+                <!-- Buttons dynamically generated -->
+            </div>
+
+            <!-- Educational Feedback Box (Shown after answering) -->
+            <div id="quizFeedbackBox" class="hidden mt-4 p-4 rounded-2xl border">
+                <div class="flex items-start gap-2.5">
+                    <div id="quizFeedbackIcon" class="text-2xl shrink-0">🎉</div>
+                    <div>
+                        <h4 id="quizFeedbackTitle" class="font-heading font-bold text-base">Masha'Allah! Correct!</h4>
+                        <p id="quizFeedbackExplanation" class="text-xs sm:text-sm text-slate-200 mt-1 leading-relaxed"></p>
+                    </div>
+                </div>
+                <button id="btnQuizContinue" class="mt-3.5 w-full py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-300 hover:to-orange-400 text-slate-950 font-heading font-bold text-base shadow-lg transition">
+                    Continue Adventure <i class="fa-solid fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         STUDY GUIDE MODAL: LEARN THE 6 PILLARS
+    =========================================== -->
+    <div id="studyModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-3 sm:p-6">
+        <div class="bg-slate-900 border-2 border-emerald-400 rounded-3xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+            <!-- Modal Header -->
+            <div class="p-4 sm:p-5 bg-gradient-to-r from-emerald-900/80 via-teal-900/80 to-slate-900 border-b border-emerald-500/30 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-11 h-11 rounded-2xl bg-emerald-400 text-slate-950 flex items-center justify-center text-xl font-bold shadow">
+                        <i class="fa-solid fa-book-open-reader"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg sm:text-2xl font-heading font-bold text-white">
+                            The Six Pillars of Faith (Arkan al-Iman)
+                        </h2>
+                        <p class="text-xs sm:text-sm text-emerald-200">
+                            Read these 6 cards to become a master of the game!
+                        </p>
+                    </div>
+                </div>
+                <button id="btnCloseStudy" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body: 6 Pillar Cards -->
+            <div class="p-4 sm:p-6 overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Pillar 1 -->
+                <div class="bg-slate-800/90 border border-amber-400/40 rounded-2xl p-4 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-2.5 mb-2">
+                            <span class="w-8 h-8 rounded-xl bg-amber-400 text-slate-950 font-heading font-bold flex items-center justify-center">1</span>
+                            <h3 class="font-heading font-bold text-base sm:text-lg text-amber-300">
+                                Belief in Allah (الإيمان بالله)
+                            </h3>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                            Believing that <strong>Allah is One</strong> (<em>Tawhid</em>) with no partners. He created the universe, the skies, the earth, and all living things. Only Allah deserves our worship and prayers.
+                        </p>
+                        <ul class="mt-2.5 space-y-1 text-xs text-amber-200/90 list-disc list-inside">
+                            <li>Allah has <strong>99 Beautiful Names</strong> (<em>Asma ul-Husna</em>).</li>
+                            <li><strong>Al-Khaliq</strong> means The Creator; <strong>Ar-Razzaq</strong> means The Provider; <strong>Ar-Rahman</strong> means The Most Merciful.</li>
+                            <li><strong>Surah Al-Ikhlas</strong> teaches us about Allah's Oneness.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Pillar 2 -->
+                <div class="bg-slate-800/90 border border-sky-400/40 rounded-2xl p-4 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-2.5 mb-2">
+                            <span class="w-8 h-8 rounded-xl bg-sky-400 text-slate-950 font-heading font-bold flex items-center justify-center">2</span>
+                            <h3 class="font-heading font-bold text-base sm:text-lg text-sky-300">
+                                Belief in the Angels (الإيمان بالملائكة)
+                            </h3>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                            Angels are honored servants of Allah created from <strong>pure light (Noor)</strong>. They never disobey Allah and each angel has special duties:
+                        </p>
+                        <ul class="mt-2.5 space-y-1 text-xs text-sky-200/90 list-disc list-inside">
+                            <li><strong>Jibril (Gabriel):</strong> Brought revelations (like the Quran) to the Prophets.</li>
+                            <li><strong>Mikail (Michael):</strong> In charge of rain, wind, and plants.</li>
+                            <li><strong>Israfil:</strong> Will blow the Trumpet on the Day of Judgment.</li>
+                            <li><strong>Kiraman Katibin:</strong> Noble angels who write down our good and bad deeds.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Pillar 3 -->
+                <div class="bg-slate-800/90 border border-emerald-400/40 rounded-2xl p-4 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-2.5 mb-2">
+                            <span class="w-8 h-8 rounded-xl bg-emerald-400 text-slate-950 font-heading font-bold flex items-center justify-center">3</span>
+                            <h3 class="font-heading font-bold text-base sm:text-lg text-emerald-300">
+                                Belief in the Holy Books (الإيمان بالكتب)
+                            </h3>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                            Allah sent holy scriptures to guide humanity to truth and kindness:
+                        </p>
+                        <ul class="mt-2.5 space-y-1 text-xs text-emerald-200/90 list-disc list-inside">
+                            <li><strong>The Holy Quran:</strong> Revealed to Prophet Muhammad ﷺ — the final book protected by Allah forever.</li>
+                            <li><strong>Tawrat (Torah):</strong> Given to Prophet Musa (Moses).</li>
+                            <li><strong>Injil (Gospel):</strong> Given to Prophet Isa (Jesus).</li>
+                            <li><strong>Zabur (Psalms):</strong> Given to Prophet Dawud (David).</li>
+                            <li><strong>Suhuf (Scrolls):</strong> Given to Prophet Ibrahim (Abraham) and Musa.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Pillar 4 -->
+                <div class="bg-slate-800/90 border border-purple-400/40 rounded-2xl p-4 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-2.5 mb-2">
+                            <span class="w-8 h-8 rounded-xl bg-purple-400 text-slate-950 font-heading font-bold flex items-center justify-center">4</span>
+                            <h3 class="font-heading font-bold text-base sm:text-lg text-purple-300">
+                                Belief in the Prophets (الإيمان بالرسل)
+                            </h3>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                            Allah chose truthful, honest role models to teach people how to worship Him and live with good manners.
+                        </p>
+                        <ul class="mt-2.5 space-y-1 text-xs text-purple-200/90 list-disc list-inside">
+                            <li><strong>First Prophet:</strong> Adam (AS). <strong>Final Messenger:</strong> Muhammad ﷺ.</li>
+                            <li><strong>25 Prophets</strong> are mentioned by name in the Holy Quran.</li>
+                            <li><strong>Ulul-Azm (5 Messengers of Strong Determination):</strong> Nuh, Ibrahim, Musa, Isa, and Muhammad ﷺ.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Pillar 5 -->
+                <div class="bg-slate-800/90 border border-rose-400/40 rounded-2xl p-4 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-2.5 mb-2">
+                            <span class="w-8 h-8 rounded-xl bg-rose-400 text-slate-950 font-heading font-bold flex items-center justify-center">5</span>
+                            <h3 class="font-heading font-bold text-base sm:text-lg text-rose-300">
+                                Day of Judgment (الإيمان باليوم الآخر)
+                            </h3>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                            Believing in <strong>Yawm al-Qiyamah</strong> (The Last Day), when Allah will bring everyone back to life for fair judgment.
+                        </p>
+                        <ul class="mt-2.5 space-y-1 text-xs text-rose-200/90 list-disc list-inside">
+                            <li><strong>Al-Mizan:</strong> The Scale of Justice where deeds are weighed.</li>
+                            <li><strong>Jannah (Paradise):</strong> The eternal garden of happiness for believers who do good.</li>
+                            <li>Knowing about the Last Day encourages us to be honest, kind, and helpful every day!</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Pillar 6 -->
+                <div class="bg-slate-800/90 border border-teal-400/40 rounded-2xl p-4 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center gap-2.5 mb-2">
+                            <span class="w-8 h-8 rounded-xl bg-teal-400 text-slate-950 font-heading font-bold flex items-center justify-center">6</span>
+                            <h3 class="font-heading font-bold text-base sm:text-lg text-teal-300">
+                                Divine Decree / Qadar (الإيمان بالقدر)
+                            </h3>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                            Believing that everything happens by <strong>Allah's perfect knowledge, wisdom, and will</strong> (<em>Al-Qada wal-Qadar</em>).
+                        </p>
+                        <ul class="mt-2.5 space-y-1 text-xs text-teal-200/90 list-disc list-inside">
+                            <li>Allah wrote everything in the Preserved Tablet (<strong>Al-Lawh Al-Mahfuz</strong>).</li>
+                            <li>We work hard, make <strong>Dua</strong>, and put our trust in Allah (<strong>Tawakkul</strong>).</li>
+                            <li>When good happens, we say <strong>"Alhamdulillah"</strong> (Shukr). When tests happen, we stay patient (<strong>Sabr</strong>).</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-4 bg-slate-950/80 border-t border-slate-800 flex justify-end">
+                <button id="btnGotItStudy" class="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-heading font-bold text-sm shadow-lg transition">
+                    Got It! Let's Play <i class="fa-solid fa-play ml-1"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         HOW TO PLAY / RULES MODAL
+    =========================================== -->
+    <div id="rulesModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bg-slate-900 border-2 border-amber-400 rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl sm:text-2xl font-heading font-bold text-amber-300 flex items-center gap-2">
+                    <i class="fa-solid fa-compass"></i> How to Play
+                </h2>
+                <button id="btnCloseRules" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 hover:text-white flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="space-y-3 text-xs sm:text-sm text-slate-200">
+                <div class="p-3 rounded-xl bg-slate-800/80 border border-slate-700 flex items-start gap-3">
+                    <span class="text-2xl">🎲</span>
+                    <div>
+                        <strong class="text-amber-300 block">1. Roll &amp; Move Step-by-Step</strong>
+                        Take turns rolling the dice to move from Square 1 up to Square 100 in a zig-zag path.
+                    </div>
+                </div>
+                <div class="p-3 rounded-xl bg-emerald-950/60 border border-emerald-500/30 flex items-start gap-3">
+                    <span class="text-2xl">🪜</span>
+                    <div>
+                        <strong class="text-emerald-300 block">2. Golden Ladders (Knowledge Boost!)</strong>
+                        Land at the bottom of a Ladder to get a 6 Pillars of Faith question. Answer <strong>correctly</strong> to climb all the way up!
+                    </div>
+                </div>
+                <div class="p-3 rounded-xl bg-rose-950/60 border border-rose-500/30 flex items-start gap-3">
+                    <span class="text-2xl">🛡️</span>
+                    <div>
+                        <strong class="text-rose-300 block">3. Snakes &amp; Faith Shield!</strong>
+                        Land on a Snake's head? Don't worry! Answer the Faith Shield question <strong>correctly</strong> to block the snake and stay safe!
+                    </div>
+                </div>
+                <div class="p-3 rounded-xl bg-amber-950/60 border border-amber-500/30 flex items-start gap-3">
+                    <span class="text-2xl">⭐</span>
+                    <div>
+                        <strong class="text-amber-300 block">4. Iman Star Squares (+2 Bonus!)</strong>
+                        Land on a glowing Star square and answer right to jump <strong>+2 extra spaces</strong> forward!
+                    </div>
+                </div>
+            </div>
+            <button id="btnStartFromRules" class="mt-5 w-full py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-heading font-bold text-base shadow-lg transition">
+                Bismillah! Let's Play!
+            </button>
+        </div>
+    </div>
+
+    <!-- ==========================================
+         VICTORY CELEBRATION MODAL
+    =========================================== -->
+    <div id="victoryModal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="bg-gradient-to-b from-slate-900 to-indigo-950 border-4 border-amber-400 rounded-3xl max-w-md w-full p-6 text-center shadow-2xl relative overflow-hidden">
+            <div class="w-20 h-20 rounded-3xl bg-gradient-to-br from-amber-300 to-orange-500 text-slate-950 flex items-center justify-center text-4xl mx-auto shadow-xl shadow-amber-500/30 mb-4 animate-bounce">
+                🏆
+            </div>
+            <span class="text-xs font-extrabold uppercase tracking-widest px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                Masha'Allah! Quest Complete!
+            </span>
+            <h2 id="victoryWinnerTitle" class="text-2xl sm:text-3xl font-heading font-bold text-white mt-2">
+                Explorer Noor Wins!
+            </h2>
+            <p id="victorySubtext" class="text-sm text-slate-300 mt-1.5">
+                You reached Square 100 and showed wonderful knowledge of the Six Pillars of Faith!
+            </p>
+
+            <!-- Summary Stats -->
+            <div class="grid grid-cols-2 gap-3 my-5">
+                <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-3">
+                    <span class="text-xs text-slate-400 block">Correct Answers</span>
+                    <span id="victoryStatCorrect" class="text-2xl font-heading font-extrabold text-emerald-400">8</span>
+                </div>
+                <div class="bg-slate-800/80 border border-slate-700 rounded-2xl p-3">
+                    <span class="text-xs text-slate-400 block">Pillar Badges</span>
+                    <span id="victoryStatBadges" class="text-2xl font-heading font-extrabold text-amber-300">6 / 6</span>
+                </div>
+            </div>
+
+            <button id="btnPlayAgainVictory" class="w-full py-3 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-300 hover:to-orange-400 text-slate-950 font-heading font-bold text-lg shadow-xl transition">
+                <i class="fa-solid fa-rotate-right mr-1"></i> Play Again!
+            </button>
+        </div>
+    </div>
+
+    <!-- Confetti Canvas Overlay -->
+    <canvas id="confettiCanvas" class="fixed inset-0 pointer-events-none z-50 hidden"></canvas>
+
+    <!-- ==========================================
+         GAME LOGIC & EDUCATIONAL ENGINE
+    =========================================== -->
+    <script>
+        /**************************************************************
+         * 1. THE 6 PILLARS OF FAITH METADATA & 36 QUESTION BANK
+         **************************************************************/
+        const PILLARS_INFO = {
+            1: { id: 1, short: "Allah", title: "Pillar 1: Belief in Allah", icon: "fa-star-and-crescent", color: "amber" },
+            2: { id: 2, short: "Angels", title: "Pillar 2: Belief in Angels", icon: "fa-feather-pointed", color: "sky" },
+            3: { id: 3, short: "Books", title: "Pillar 3: Holy Books", icon: "fa-book-quran", color: "emerald" },
+            4: { id: 4, short: "Prophets", title: "Pillar 4: Prophets", icon: "fa-mosque", color: "purple" },
+            5: { id: 5, short: "Last Day", title: "Pillar 5: Day of Judgment", icon: "fa-scale-balanced", color: "rose" },
+            6: { id: 6, short: "Qadar", title: "Pillar 6: Divine Decree", icon: "fa-compass", color: "teal" }
+        };
+
+        const QUESTION_BANK = [
+            // --- PILLAR 1: BELIEF IN ALLAH (6 Questions) ---
+            {
+                pillar: 1,
+                q: "How many Pillars of Faith (Arkan al-Iman) are there in Islam?",
+                options: ["5 Pillars", "6 Pillars", "7 Pillars", "4 Pillars"],
+                answer: 1,
+                explanation: "There are 6 Pillars of Faith (Iman): Belief in Allah, His Angels, His Books, His Messengers, the Last Day, and Divine Decree (Qadar)."
+            },
+            {
+                pillar: 1,
+                q: "What is the first and most important Pillar of Faith (Iman)?",
+                options: ["Belief in the Angels", "Belief in Allah (One God)", "Fasting in Ramadan", "Giving Charity"],
+                answer: 1,
+                explanation: "Belief in Allah (Tawhid)—knowing that Allah is the One and Only Creator—is the first Pillar of Faith!"
+            },
+            {
+                pillar: 1,
+                q: "What does Allah's Beautiful Name 'Al-Khaliq' (الخالق) mean?",
+                options: ["The Creator of everything", "The Fast Runner", "The Traveller", "The Builder of Houses"],
+                answer: 0,
+                explanation: "Al-Khaliq means 'The Creator'. Allah created the heavens, the earth, the stars, and every living thing!"
+            },
+            {
+                pillar: 1,
+                q: "How many Beautiful Names of Allah (Asma ul-Husna) are taught in Hadith for us to learn and love?",
+                options: ["10 Names", "33 Names", "99 Names", "50 Names"],
+                answer: 2,
+                explanation: "Allah has 99 Beautiful Names (Asma ul-Husna) such as Ar-Rahman (The Most Gracious) and Al-Alim (The All-Knowing)."
+            },
+            {
+                pillar: 1,
+                q: "Which short Surah in the Quran beautifully explains that Allah is One and has no partners?",
+                options: ["Surah Al-Ikhlas", "Surah Al-Fil", "Surah Al-Kafirun", "Surah Al-Masad"],
+                answer: 0,
+                explanation: "Surah Al-Ikhlas begins with 'Qul Huwa Allahu Ahad' (Say: He is Allah, the One) and equals one-third of the Quran in meaning!"
+            },
+            {
+                pillar: 1,
+                q: "What does the Islamic word 'Tawhid' mean?",
+                options: ["Believing that Allah is One without any partners", "Travelling to a new city", "Reading a story book", "Building a bridge"],
+                answer: 0,
+                explanation: "Tawhid means believing in the Oneness of Allah and worshipping Him alone."
+            },
+
+            // --- PILLAR 2: BELIEF IN THE ANGELS (6 Questions) ---
+            {
+                pillar: 2,
+                q: "What did Allah create the Angels (Mala'ikah) from?",
+                options: ["Clay and mud", "Pure Light (Noor)", "Smokeless fire", "Water and ice"],
+                answer: 1,
+                explanation: "Prophet Muhammad ﷺ taught us that Allah created the angels from pure light (Noor)."
+            },
+            {
+                pillar: 2,
+                q: "Which Angel brought the revelations of the Holy Quran from Allah to Prophet Muhammad ﷺ?",
+                options: ["Angel Mikail", "Angel Jibril (Gabriel)", "Angel Israfil", "Angel Malik"],
+                answer: 1,
+                explanation: "Angel Jibril (peace be upon him) is the leader of the angels who brought Allah's messages to the Prophets."
+            },
+            {
+                pillar: 2,
+                q: "Which Angel is entrusted by Allah with bringing rain, wind, and nourishment for plants?",
+                options: ["Angel Mikail (Michael)", "Angel Israfil", "Angel Jibril", "Angel Ridwan"],
+                answer: 0,
+                explanation: "Angel Mikail is responsible for rain and vegetation by Allah's command."
+            },
+            {
+                pillar: 2,
+                q: "Do Angels ever disobey Allah or get tired of worshipping Him?",
+                options: ["Sometimes when they are sleepy", "No, they never disobey Allah and always obey Him happily", "Only on weekends", "Only when it rains"],
+                answer: 1,
+                explanation: "Angels are pure servants of Allah. They never disobey Allah and never get tired of praising Him."
+            },
+            {
+                pillar: 2,
+                q: "What is the job of the two noble Angels called 'Kiraman Katibin' on our shoulders?",
+                options: ["To carry our school bags", "To record all our good deeds and bad deeds", "To cook our food", "To wake us up for school"],
+                answer: 1,
+                explanation: "Kiraman Katibin are the honorable recording angels who write down everything we say and do."
+            },
+            {
+                pillar: 2,
+                q: "Which Angel has the duty of blowing the Trumpet (As-Sur) on the Day of Judgment?",
+                options: ["Angel Israfil", "Angel Mikail", "Angel Jibril", "Angel Harut"],
+                answer: 0,
+                explanation: "Angel Israfil will blow the Trumpet by Allah's command to signal the Day of Judgment."
+            },
+
+            // --- PILLAR 3: BELIEF IN THE HOLY BOOKS (6 Questions) ---
+            {
+                pillar: 3,
+                q: "Which Holy Book was revealed to Prophet Muhammad ﷺ as the final guidance for all humanity?",
+                options: ["The Tawrat (Torah)", "The Holy Quran", "The Zabur (Psalms)", "The Injil (Gospel)"],
+                answer: 1,
+                explanation: "The Holy Quran is Allah's final book, revealed to Prophet Muhammad ﷺ in Arabic."
+            },
+            {
+                pillar: 3,
+                q: "Which Holy Book did Allah give to Prophet Musa (Moses, peace be upon him)?",
+                options: ["The Tawrat (Torah)", "The Zabur (Psalms)", "The Injil (Gospel)", "The Quran"],
+                answer: 0,
+                explanation: "Allah gave the Tawrat (Torah) to Prophet Musa (AS) to guide his people."
+            },
+            {
+                pillar: 3,
+                q: "Which Holy Book was revealed to Prophet Isa (Jesus, peace be upon him)?",
+                options: ["The Suhuf", "The Injil (Gospel)", "The Zabur", "The Tawrat"],
+                answer: 1,
+                explanation: "Allah revealed the Injil (Gospel) to Prophet Isa (AS)."
+            },
+            {
+                pillar: 3,
+                q: "Which Prophet received the Holy Book called 'Az-Zabur' (The Psalms)?",
+                options: ["Prophet Dawud (David)", "Prophet Nuh (Noah)", "Prophet Yusuf (Joseph)", "Prophet Yunus (Jonah)"],
+                answer: 0,
+                explanation: "Prophet Dawud (AS), known for his beautiful voice in praising Allah, was given the Zabur."
+            },
+            {
+                pillar: 3,
+                q: "What are the 'Suhuf' that Allah revealed to Prophet Ibrahim (Abraham)?",
+                options: ["Sacred Scrolls of guidance", "Golden coins", "Wooden ships", "Stone castles"],
+                answer: 0,
+                explanation: "Suhuf means Sacred Scrolls containing wisdom and teachings from Allah."
+            },
+            {
+                pillar: 3,
+                q: "Why is the Holy Quran special compared to earlier books?",
+                options: [
+                    "Allah promised to protect the Quran from any change forever",
+                    "It is only for one small village",
+                    "It was written by kings",
+                    "It has only 3 pages"
+                ],
+                answer: 0,
+                explanation: "In the Quran (15:9), Allah promised to guard and preserve the Holy Quran forever without a single letter changing!"
+            },
+
+            // --- PILLAR 4: BELIEF IN THE PROPHETS & MESSENGERS (6 Questions) ---
+            {
+                pillar: 4,
+                q: "Who was the very FIRST Prophet created by Allah?",
+                options: ["Prophet Nuh (AS)", "Prophet Adam (AS)", "Prophet Ibrahim (AS)", "Prophet Idris (AS)"],
+                answer: 1,
+                explanation: "Prophet Adam (peace be upon him) was the first human being and the first Prophet of Allah."
+            },
+            {
+                pillar: 4,
+                q: "Who is the LAST and FINAL Messenger of Allah (Khatam an-Nabiyyin)?",
+                options: ["Prophet Isa (AS)", "Prophet Musa (AS)", "Prophet Muhammad ﷺ", "Prophet Sulaiman (AS)"],
+                answer: 2,
+                explanation: "Prophet Muhammad ﷺ is the Seal of the Prophets—no prophet will come after him."
+            },
+            {
+                pillar: 4,
+                q: "How many Prophets and Messengers are mentioned by name in the Holy Quran?",
+                options: ["5 Prophets", "12 Prophets", "25 Prophets", "100 Prophets"],
+                answer: 2,
+                explanation: "There are 25 Prophets mentioned by name in the Holy Quran, though Allah sent many more throughout history."
+            },
+            {
+                pillar: 4,
+                q: "Which Prophet built a giant Ark (ship) by Allah's command before the great flood?",
+                options: ["Prophet Nuh (Noah)", "Prophet Saleh", "Prophet Hud", "Prophet Lut"],
+                answer: 0,
+                explanation: "Prophet Nuh (AS) patiently called his people to Allah for 950 years and built the Ark to save the believers."
+            },
+            {
+                pillar: 4,
+                q: "Who are the 5 greatest Messengers known as 'Ulul-Azm' (Messengers of Strong Determination)?",
+                options: [
+                    "Nuh, Ibrahim, Musa, Isa, and Muhammad ﷺ",
+                    "Adam, Yusuf, Yunus, Ayub, and Harun",
+                    "Dawud, Sulaiman, Zakariya, Yahya, and Ilyas",
+                    "Idris, Hud, Saleh, Lut, and Shu'aib"
+                ],
+                answer: 0,
+                explanation: "The 5 Ulul-Azm Messengers are Nuh, Ibrahim, Musa, Isa, and Muhammad (peace be upon them all) because of their great patience."
+            },
+            {
+                pillar: 4,
+                q: "Why was Prophet Muhammad ﷺ called 'As-Sadiq Al-Amin' even before he became a Prophet?",
+                options: [
+                    "Because he was always The Truthful and The Trustworthy",
+                    "Because he had the fastest horse",
+                    "Because he owned the biggest house",
+                    "Because he travelled to China"
+                ],
+                answer: 0,
+                explanation: "All Prophets had the best manners! Prophet Muhammad ﷺ was known by everyone in Makkah as As-Sadiq (The Truthful) and Al-Amin (The Trustworthy)."
+            },
+
+            // --- PILLAR 5: BELIEF IN THE DAY OF JUDGMENT (6 Questions) ---
+            {
+                pillar: 5,
+                q: "What is the Arabic name for the Day of Judgment?",
+                options: ["Yawm al-Qiyamah", "Yawm al-Jumu'ah", "Eid al-Fitr", "Laylat al-Qadr"],
+                answer: 0,
+                explanation: "Yawm al-Qiyamah (or Yawm ad-Din) is the Day of Standing and Judgment when everyone returns to Allah."
+            },
+            {
+                pillar: 5,
+                q: "What is 'Al-Mizan' on the Day of Judgment?",
+                options: [
+                    "The Scale of Justice where our good and bad deeds are weighed",
+                    "A type of desert fruit",
+                    "A mountain in Makkah",
+                    "A camel race"
+                ],
+                answer: 0,
+                explanation: "Al-Mizan is Allah's completely fair Scale that weighs our deeds on the Day of Judgment."
+            },
+            {
+                pillar: 5,
+                q: "What is the wonderful reward in the Hereafter for people who believe in Allah and do good deeds?",
+                options: ["Jannah (Paradise)", "A toy car", "A gold medal only", "A summer vacation"],
+                answer: 0,
+                explanation: "Jannah (Paradise) is the eternal home of peace, rivers, and happiness prepared by Allah for believers!"
+            },
+            {
+                pillar: 5,
+                q: "Who is the ONLY One who knows the exact time when the Day of Judgment will happen?",
+                options: ["Allah Alone", "Scientists", "Even the Angels know", "News reporters"],
+                answer: 0,
+                explanation: "Only Allah knows when the Hour (Day of Judgment) will take place—not even Angel Jibril or Prophet Muhammad ﷺ knew the exact date."
+            },
+            {
+                pillar: 5,
+                q: "How does believing in the Day of Judgment help us in our daily life?",
+                options: [
+                    "It motivates us to be kind, honest, and help others because Allah rewards every good deed",
+                    "It makes us stop going to school",
+                    "It makes us forget our homework",
+                    "It tells us to play video games all day"
+                ],
+                answer: 0,
+                explanation: "Knowing that Allah sees and rewards even an atom's weight of goodness encourages us to be our very best every day!"
+            },
+            {
+                pillar: 5,
+                q: "On the Day of Judgment, how will a righteous believer receive their Book of Deeds?",
+                options: ["In their Right Hand", "Under their shoes", "Inside a bottle", "On a bicycle"],
+                answer: 0,
+                explanation: "In the Quran, those who receive their Book of Deeds in their right hand will rejoice and enter Jannah happily!"
+            },
+
+            // --- PILLAR 6: BELIEF IN DIVINE DECREE / QADAR (6 Questions) ---
+            {
+                pillar: 6,
+                q: "What is the 6th Pillar of Faith, known in Arabic as 'Al-Qadar'?",
+                options: [
+                    "Belief in Divine Decree (that everything happens by Allah's knowledge and wisdom)",
+                    "Belief in flying carpets",
+                    "Learning how to swim",
+                    "Counting the stars at night"
+                ],
+                answer: 0,
+                explanation: "Al-Qadar means believing that Allah knows everything in the past, present, and future, and everything happens by His wise plan."
+            },
+            {
+                pillar: 6,
+                q: "Where did Allah write down everything that will ever happen in the universe?",
+                options: [
+                    "In Al-Lawh Al-Mahfuz (The Preserved Tablet)",
+                    "On a classroom whiteboard",
+                    "In a newspaper",
+                    "On a sandy beach"
+                ],
+                answer: 0,
+                explanation: "Allah commanded the Pen to write everything that would happen in Al-Lawh Al-Mahfuz (The Preserved Tablet) 50,000 years before creating the heavens and earth."
+            },
+            {
+                pillar: 6,
+                q: "When something joyful and good happens to us, what should a believer say?",
+                options: ["Alhamdulillah (All praise and thanks be to Allah)", "I did this all by myself!", "Nothing at all", "Complain to friends"],
+                answer: 0,
+                explanation: "Showing gratitude (Shukr) by saying 'Alhamdulillah' brings even more blessings from Allah!"
+            },
+            {
+                pillar: 6,
+                q: "When a Muslim faces a hard test or difficulty, what should they practice?",
+                options: [
+                    "Sabr (Patience) and praying to Allah for help, knowing Allah has wisdom in everything",
+                    "Getting angry and breaking things",
+                    "Blaming everyone else",
+                    "Giving up completely"
+                ],
+                answer: 0,
+                explanation: "Prophet Muhammad ﷺ said the affair of the believer is amazing: when good happens, they are thankful (Shukr), and when hardship happens, they are patient (Sabr)!"
+            },
+            {
+                pillar: 6,
+                q: "What does 'Tawakkul' mean when preparing for a school exam or goal?",
+                options: [
+                    "Studying hard, doing our best, AND putting our trust in Allah",
+                    "Not studying at all and sleeping",
+                    "Worrying without doing anything",
+                    "Copying from a friend"
+                ],
+                answer: 0,
+                explanation: "True Tawakkul is doing our best effort ('tie your camel') and then trusting Allah for the best result!"
+            },
+            {
+                pillar: 6,
+                q: "What phrase do Muslims say when planning to do something tomorrow or in the future?",
+                options: ["Insha'Allah (If Allah wills)", "Maybe never", "Wait a century", "Abracadabra"],
+                answer: 0,
+                explanation: "We say 'Insha'Allah' (If Allah wills) because nothing happens in the future except by Allah's permission and decree."
+            }
+        ];
+
+        /**************************************************************
+         * 2. BOARD CONFIGURATION (LADDERS, SNAKES & STAR SQUARES)
+         **************************************************************/
+        const LADDERS = {
+            4:  25,
+            13: 46,
+            33: 49,
+            42: 63,
+            50: 69,
+            62: 81,
+            74: 92
+        };
+
+        const SNAKES = {
+            27: { tail: 5,  color1: "#f43f5e", color2: "#fb7185" },
+            40: { tail: 3,  color1: "#8b5cf6", color2: "#c084fc" },
+            43: { tail: 18, color1: "#ec4899", color2: "#f472b6" },
+            54: { tail: 31, color1: "#eab308", color2: "#fde047" },
+            66: { tail: 45, color1: "#06b6d4", color2: "#67e8f9" },
+            76: { tail: 58, color1: "#f97316", color2: "#fdba74" },
+            89: { tail: 53, color1: "#a855f7", color2: "#d8b4fe" },
+            99: { tail: 41, color1: "#ef4444", color2: "#fca5a5" }
+        };
+
+        const STAR_SQUARES = [8, 19, 29, 36, 57, 68, 79, 85, 94];
+
+        /**************************************************************
+         * 3. WEB AUDIO SYNTHESIZER (NO EXTERNAL AUDIO FILES REQUIRED)
+         **************************************************************/
+        class SoundEngine {
+            constructor() {
+                this.enabled = true;
+                this.ctx = null;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (AudioCtx) this.ctx = new AudioCtx();
+                }
+                if (this.ctx && this.ctx.state === "suspended") {
+                    this.ctx.resume();
+                }
+            }
+
+            playTone(freq, type = "sine", duration = 0.12, delay = 0, volume = 0.14) {
+                if (!this.enabled) return;
+                this.init();
+                if (!this.ctx) return;
+
+                const startTime = this.ctx.currentTime + delay;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, startTime);
+
+                gain.gain.setValueAtTime(volume, startTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start(startTime);
+                osc.stop(startTime + duration);
+            }
+
+            diceRoll() {
+                for (let i = 0; i < 5; i++) {
+                    this.playTone(220 + i * 55, "triangle", 0.05, i * 0.055, 0.12);
+                }
+            }
+
+            step() {
+                this.playTone(440, "sine", 0.08, 0, 0.12);
+                this.playTone(587.33, "sine", 0.08, 0.04, 0.1);
+            }
+
+            quizPopup() {
+                this.playTone(523.25, "triangle", 0.12, 0, 0.14);
+                this.playTone(659.25, "triangle", 0.18, 0.1, 0.14);
+            }
+
+            correct() {
+                const notes = [523.25, 659.25, 783.99, 1046.5];
+                notes.forEach((n, idx) => this.playTone(n, "triangle", 0.18, idx * 0.09, 0.16));
+            }
+
+            wrong() {
+                this.playTone(300, "sawtooth", 0.2, 0, 0.12);
+                this.playTone(220, "sawtooth", 0.3, 0.18, 0.12);
+            }
+
+            climbLadder() {
+                const scale = [392, 440, 493.88, 523.25, 587.33, 659.25, 783.99, 1046.5];
+                scale.forEach((n, i) => this.playTone(n, "sine", 0.12, i * 0.06, 0.15));
+            }
+
+            slideSnake() {
+                const notes = [659.25, 587.33, 523.25, 440, 349.23, 293.66, 220];
+                notes.forEach((n, i) => this.playTone(n, "sawtooth", 0.1, i * 0.055, 0.1));
+            }
+
+            victory() {
+                const fanfare = [523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5];
+                const delays  = [0, 0.12, 0.24, 0.36, 0.55, 0.70];
+                fanfare.forEach((n, i) => this.playTone(n, "triangle", 0.24, delays[i], 0.18));
+            }
+        }
+
+        const sfx = new SoundEngine();
+
+        /**************************************************************
+         * 4. GAME STATE MANAGEMENT
+         **************************************************************/
+        const state = {
+            mode: "1P", // "1P" (vs Bot) or "2P" (Pass & Play)
+            turn: 1,    // 1 or 2
+            isBusy: false,
+            pillarFilter: "all",
+            usedQuestionIndices: new Set(),
+            players: {
+                1: {
+                    name: "Explorer Noor (P1)",
+                    pos: 1,
+                    score: 0,
+                    badges: { 1: false, 2: false, 3: false, 4: false, 5: false, 6: false }
+                },
+                2: {
+                    name: "Hudhud Bot",
+                    pos: 1,
+                    score: 0,
+                    badges: { 1: false, 2: false, 3: false, 4: false, 5: false, 6: false }
+                }
+            }
+        };
+
+        /**************************************************************
+         * 5. COORDINATE HELPER FOR 10x10 ZIG-ZAG BOARD
+         **************************************************************/
+        // Returns { row, col, xPercent, yPercent } for any square 1..100
+        // Square 1 is bottom-left (row 9, col 0); Square 100 is top-left (row 0, col 0)
+        function getSquareMetrics(squareNum) {
+            const zeroBased = squareNum - 1;
+            const rowFromBottom = Math.floor(zeroBased / 10); // 0..9
+            const rowFromTop = 9 - rowFromBottom;            // 9..0
+            const posInRow = zeroBased % 10;                 // 0..9
+            const col = (rowFromBottom % 2 === 0) ? posInRow : (9 - posInRow);
+
+            const xPercent = (col + 0.5) * 10;        // 5% to 95%
+            const yPercent = (rowFromTop + 0.5) * 10; // 5% to 95%
+            return { rowFromTop, col, xPercent, yPercent };
+        }
+
+        /**************************************************************
+         * 6. RENDER THE 100 BOARD CELLS + SVG LADDERS & SNAKES
+         **************************************************************/
+        const TILE_PALETTE = [
+            "bg-amber-50/95 text-slate-800",
+            "bg-sky-50/95 text-slate-800",
+            "bg-emerald-50/95 text-slate-800",
+            "bg-purple-50/95 text-slate-800",
+            "bg-rose-50/95 text-slate-800"
+        ];
+
+        function buildBoard() {
+            const grid = document.getElementById("boardGrid");
+            grid.innerHTML = "";
+
+            // Generate rows from top (rowFromBottom = 9 down to 0)
+            for (let rowFromBottom = 9; rowFromBottom >= 0; rowFromBottom--) {
+                for (let col = 0; col < 10; col++) {
+                    const posInRow = (rowFromBottom % 2 === 0) ? col : (9 - col);
+                    const squareNum = rowFromBottom * 10 + posInRow + 1;
+
+                    const cell = document.createElement("div");
+                    const colorClass = TILE_PALETTE[(rowFromBottom + col) % TILE_PALETTE.length];
+                    cell.className = `board-cell ${colorClass}`;
+                    cell.id = `cell-${squareNum}`;
+
+                    // Special styling for 1, 100, Ladders, Snakes, and Stars
+                    let badgeHtml = "";
+                    if (squareNum === 100) {
+                        cell.className = "board-cell bg-gradient-to-br from-amber-300 via-yellow-200 to-amber-400 text-slate-950 font-bold";
+                        badgeHtml = `<span class="text-xs sm:text-base self-center my-auto">🏆</span>`;
+                    } else if (squareNum === 1) {
+                        cell.className = "board-cell bg-gradient-to-br from-emerald-200 to-teal-300 text-slate-900 font-bold";
+                        badgeHtml = `<span class="text-[10px] sm:text-xs font-extrabold text-emerald-900 self-center my-auto">START</span>`;
+                    } else if (LADDERS[squareNum]) {
+                        cell.classList.add("ring-2", "ring-inset", "ring-emerald-500/60", "bg-emerald-100/90");
+                        badgeHtml = `<span class="text-[10px] sm:text-xs font-extrabold text-emerald-700 self-end">🪜↑${LADDERS[squareNum]}</span>`;
+                    } else if (SNAKES[squareNum]) {
+                        cell.classList.add("ring-2", "ring-inset", "ring-rose-500/60", "bg-rose-100/90");
+                        badgeHtml = `<span class="text-[10px] sm:text-xs font-extrabold text-rose-700 self-end">🐍↓${SNAKES[squareNum].tail}</span>`;
+                    } else if (STAR_SQUARES.includes(squareNum)) {
+                        cell.classList.add("bg-amber-100/90");
+                        badgeHtml = `<span class="star-icon-anim text-xs sm:text-sm text-amber-500 self-center my-auto" title="Iman Star Square (+2 Bonus)">⭐</span>`;
+                    }
+
+                    cell.innerHTML = `
+                        <span class="text-[10px] sm:text-xs font-heading font-bold leading-none opacity-85">${squareNum}</span>
+                        ${badgeHtml}
+                    `;
+
+                    grid.appendChild(cell);
+                }
+            }
+
+            drawBoardSvgOverlay();
+        }
+
+        function drawBoardSvgOverlay() {
+            const svg = document.getElementById("boardSvg");
+            let svgContent = `
+                <defs>
+                    <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
+                        <feDropShadow dx="1" dy="3" stdDeviation="2.5" flood-color="#000000" flood-opacity="0.32"/>
+                    </filter>
+                    <linearGradient id="ladderRailGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#10b981" />
+                        <stop offset="50%" stop-color="#f59e0b" />
+                        <stop offset="100%" stop-color="#059669" />
+                    </linearGradient>
+                </defs>
+            `;
+
+            // 1. Draw Ladders
+            for (const [startStr, endNum] of Object.entries(LADDERS)) {
+                const startNum = parseInt(startStr, 10);
+                const p1 = getSquareMetrics(startNum);
+                const p2 = getSquareMetrics(endNum);
+
+                const x1 = p1.xPercent * 10;
+                const y1 = p1.yPercent * 10;
+                const x2 = p2.xPercent * 10;
+                const y2 = p2.yPercent * 10;
+
+                const dx = x2 - x1;
+                const dy = y2 - y1;
+                const length = Math.hypot(dx, dy);
+
+                // Unit perpendicular vector for the two side rails
+                const nx = (-dy / length) * 14;
+                const ny = (dx / length) * 14;
+
+                // Left & Right rail coordinates
+                const lx1 = x1 + nx, ly1 = y1 + ny;
+                const lx2 = x2 + nx, ly2 = y2 + ny;
+                const rx1 = x1 - nx, ry1 = y1 - ny;
+                const rx2 = x2 - nx, ry2 = y2 - ny;
+
+                // Rungs along the ladder
+                const numRungs = Math.max(4, Math.floor(length / 32));
+                let rungsSvg = "";
+                for (let i = 1; i < numRungs; i++) {
+                    const t = i / numRungs;
+                    const rlx = lx1 + (lx2 - lx1) * t;
+                    const rly = ly1 + (ly2 - ly1) * t;
+                    const rrx = rx1 + (rx2 - rx1) * t;
+                    const rry = ry1 + (ry2 - ry1) * t;
+                    rungsSvg += `<line x1="${rlx}" y1="${rly}" x2="${rrx}" y2="${rry}" stroke="#fef08a" stroke-width="5" stroke-linecap="round" />`;
+                }
+
+                svgContent += `
+                    <g filter="url(#dropShadow)" opacity="0.92">
+                        ${rungsSvg}
+                        <line x1="${lx1}" y1="${ly1}" x2="${lx2}" y2="${ly2}" stroke="url(#ladderRailGrad)" stroke-width="7" stroke-linecap="round" />
+                        <line x1="${rx1}" y1="${ry1}" x2="${rx2}" y2="${ry2}" stroke="url(#ladderRailGrad)" stroke-width="7" stroke-linecap="round" />
+                    </g>
+                `;
+            }
+
+            // 2. Draw Friendly Cartoon Snakes
+            for (const [headStr, snakeData] of Object.entries(SNAKES)) {
+                const headNum = parseInt(headStr, 10);
+                const tailNum = snakeData.tail;
+
+                const pHead = getSquareMetrics(headNum);
+                const pTail = getSquareMetrics(tailNum);
+
+                const x1 = pHead.xPercent * 10;
+                const y1 = pHead.yPercent * 10;
+                const x2 = pTail.xPercent * 10;
+                const y2 = pTail.yPercent * 10;
+
+                const dx = x2 - x1;
+                const dy = y2 - y1;
+                const len = Math.hypot(dx, dy);
+                const nx = (-dy / len);
+                const ny = (dx / len);
+
+                // S-curve control points
+                const waveAmp = Math.min(75, len * 0.28);
+                const cx1 = x1 + dx * 0.33 + nx * waveAmp;
+                const cy1 = y1 + dy * 0.33 + ny * waveAmp;
+                const cx2 = x1 + dx * 0.66 - nx * waveAmp;
+                const cy2 = y1 + dy * 0.66 - ny * waveAmp;
+
+                // Angle of snake head for cute eyes & tongue
+                const headAngle = Math.atan2(cy1 - y1, cx1 - x1) * (180 / Math.PI);
+
+                svgContent += `
+                    <g filter="url(#dropShadow)" opacity="0.93">
+                        <!-- Snake Body Outer -->
+                        <path d="M ${x1} ${y1} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${x2} ${y2}"
+                              fill="none" stroke="${snakeData.color1}" stroke-width="15" stroke-linecap="round" />
+                        <!-- Snake Body Stripes -->
+                        <path d="M ${x1} ${y1} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${x2} ${y2}"
+                              fill="none" stroke="${snakeData.color2}" stroke-width="9" stroke-dasharray="10 12" stroke-linecap="round" />
+                        <!-- Snake Head Group -->
+                        <g transform="translate(${x1}, ${y1}) rotate(${headAngle})">
+                            <!-- Forked Tongue -->
+                            <path d="M -14 0 L -25 -5 M -14 0 L -25 5" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" />
+                            <!-- Head Oval -->
+                            <ellipse cx="0" cy="0" rx="14" ry="11" fill="${snakeData.color1}" stroke="#ffffff" stroke-width="2" />
+                            <!-- Cute Eyes -->
+                            <circle cx="-3" cy="-5" r="3.5" fill="#ffffff" />
+                            <circle cx="-3" cy="5" r="3.5" fill="#ffffff" />
+                            <circle cx="-4" cy="-5" r="1.8" fill="#0f172a" />
+                            <circle cx="-4" cy="5" r="1.8" fill="#0f172a" />
+                        </g>
+                    </g>
+                `;
+            }
+
+            svg.innerHTML = svgContent;
+        }
+
+        /**************************************************************
+         * 7. DICE SVG FACE RENDERER
+         **************************************************************/
+        function renderDiceFace(value) {
+            const container = document.getElementById("diceFaceContainer");
+            const dotPositions = {
+                1: [[50, 50]],
+                2: [[28, 28], [72, 72]],
+                3: [[28, 28], [50, 50], [72, 72]],
+                4: [[28, 28], [72, 28], [28, 72], [72, 72]],
+                5: [[28, 28], [72, 28], [50, 50], [28, 72], [72, 72]],
+                6: [[28, 24], [72, 24], [28, 50], [72, 50], [28, 76], [72, 76]]
+            };
+
+            const dots = (dotPositions[value] || dotPositions[1])
+                .map(([cx, cy]) => `<circle cx="${cx}" cy="${cy}" r="9.5" fill="#0f172a" />`)
+                .join("");
+
+            container.innerHTML = `
+                <svg viewBox="0 0 100 100" class="w-full h-full bg-white rounded-xl shadow-inner border border-amber-200">
+                    ${dots}
+                </svg>
+            `;
+        }
+
+        /**************************************************************
+         * 8. PLAYER TOKENS & UI SYNCHRONIZATION
+         **************************************************************/
+        function updateTokenPositions(jumpingPlayer = null) {
+            const p1Pos = state.players[1].pos;
+            const p2Pos = state.players[2].pos;
+
+            const m1 = getSquareMetrics(p1Pos);
+            const m2 = getSquareMetrics(p2Pos);
+
+            const token1 = document.getElementById("tokenP1");
+            const token2 = document.getElementById("tokenP2");
+
+            // Slight offset when both players share the same square
+            const sameSquare = (p1Pos === p2Pos);
+            const offset1X = sameSquare ? -1.8 : 0;
+            const offset1Y = sameSquare ? -1.4 : 0;
+            const offset2X = sameSquare ? 1.8 : 0;
+            const offset2Y = sameSquare ? 1.4 : 0;
+
+            token1.style.left = `${m1.xPercent + offset1X}%`;
+            token1.style.top  = `${m1.yPercent + offset1Y}%`;
+
+            token2.style.left = `${m2.xPercent + offset2X}%`;
+            token2.style.top  = `${m2.yPercent + offset2Y}%`;
+
+            if (jumpingPlayer === 1) {
+                token1.classList.add("hopping");
+                setTimeout(() => token1.classList.remove("hopping"), 220);
+            } else if (jumpingPlayer === 2) {
+                token2.classList.add("hopping");
+                setTimeout(() => token2.classList.remove("hopping"), 220);
+            }
+
+            // Highlight current cells
+            document.querySelectorAll(".board-cell.highlight-cell").forEach(el => el.classList.remove("highlight-cell"));
+            const c1 = document.getElementById(`cell-${p1Pos}`);
+            const c2 = document.getElementById(`cell-${p2Pos}`);
+            if (c1) c1.classList.add("highlight-cell");
+            if (c2) c2.classList.add("highlight-cell");
+
+            // Update square text counters
+            document.getElementById("p1Pos").textContent = p1Pos;
+            document.getElementById("p2Pos").textContent = p2Pos;
+            document.getElementById("p1Score").textContent = state.players[1].score;
+            document.getElementById("p2Score").textContent = state.players[2].score;
+        }
+
+        function renderPillarBadges() {
+            [1, 2].forEach(pNum => {
+                const grid = document.getElementById(`p${pNum}BadgesGrid`);
+                const badgesObj = state.players[pNum].badges;
+                let earnedCount = 0;
+
+                grid.innerHTML = Object.values(PILLARS_INFO).map(pillar => {
+                    const earned = badgesObj[pillar.id];
+                    if (earned) earnedCount++;
+                    const activeClasses = earned
+                        ? "bg-gradient-to-br from-amber-300 to-amber-500 text-slate-950 border-white shadow-md scale-105"
+                        : "bg-slate-800/90 text-slate-500 border-slate-700 opacity-60";
+
+                    return `
+                        <div class="rounded-lg p-1.5 border flex flex-col items-center justify-center transition-all ${activeClasses}"
+                             title="${pillar.title} ${earned ? '(Earned!)' : '(Answer a question from this Pillar to earn!)'}">
+                            <i class="fa-solid ${pillar.icon} text-xs"></i>
+                            <span class="text-[9px] font-bold mt-0.5 truncate max-w-full">${pillar.short}</span>
+                        </div>
+                    `;
+                }).join("");
+
+                document.getElementById(`p${pNum}BadgeCount`).textContent = `${earnedCount} / 6`;
+            });
+        }
+
+        function updateTurnUI() {
+            const currentP = state.players[state.turn];
+            const turnBadge = document.getElementById("turnBadge");
+            const turnTitle = document.getElementById("turnTitle");
+            const cardP1 = document.getElementById("cardP1");
+            const cardP2 = document.getElementById("cardP2");
+            const tokenP1 = document.getElementById("tokenP1");
+            const tokenP2 = document.getElementById("tokenP2");
+            const p1Dot = document.getElementById("p1ActiveDot");
+            const p2Dot = document.getElementById("p2ActiveDot");
+
+            turnBadge.textContent = state.turn === 1 ? "Player 1's Turn" : (state.mode === "1P" ? "Hudhud Bot's Turn" : "Player 2's Turn");
+            turnTitle.textContent = currentP.name;
+
+            if (state.turn === 1) {
+                cardP1.className = "bg-slate-900/95 border-2 border-amber-400 rounded-2xl p-3.5 shadow-lg transition-all";
+                cardP2.className = "bg-slate-900/75 border-2 border-slate-800 rounded-2xl p-3.5 opacity-80 transition-all";
+                tokenP1.classList.add("active-turn");
+                tokenP2.classList.remove("active-turn");
+                p1Dot.classList.remove("hidden");
+                p2Dot.classList.add("hidden");
+            } else {
+                cardP2.className = "bg-slate-900/95 border-2 border-emerald-400 rounded-2xl p-3.5 shadow-lg transition-all";
+                cardP1.className = "bg-slate-900/75 border-2 border-slate-800 rounded-2xl p-3.5 opacity-80 transition-all";
+                tokenP2.classList.add("active-turn");
+                tokenP1.classList.remove("active-turn");
+                p2Dot.classList.remove("hidden");
+                p1Dot.classList.add("hidden");
+            }
+        }
+
+        function addLog(message) {
+            const log = document.getElementById("adventureLog");
+            const entry = document.createElement("div");
+            entry.className = "py-0.5 border-b border-slate-800/60 last:border-none";
+            entry.innerHTML = message;
+            log.prepend(entry);
+        }
+
+        function setStatus(text) {
+            document.getElementById("gameStatusText").innerHTML = text;
+        }
+
+        /**************************************************************
+         * 9. DICE ROLL & STEP-BY-STEP MOVEMENT
+         **************************************************************/
+        const sleep = (ms) => new Promise(res => setTimeout(res, ms));
+
+        async function handleRollDice() {
+            if (state.isBusy) return;
+            state.isBusy = true;
+
+            const btnRoll = document.getElementById("btnRollDice");
+            btnRoll.disabled = true;
+            btnRoll.classList.add("dice-rolling");
+            sfx.diceRoll();
+
+            const player = state.players[state.turn];
+            setStatus(`🎲 <strong>${player.name}</strong> is rolling the dice...`);
+
+            // Cycle random dice faces for excitement
+            for (let i = 0; i < 7; i++) {
+                renderDiceFace(Math.floor(Math.random() * 6) + 1);
+                await sleep(65);
+            }
+
+            const rolled = Math.floor(Math.random() * 6) + 1;
+            renderDiceFace(rolled);
+            btnRoll.classList.remove("dice-rolling");
+
+            addLog(`🎲 <strong>${player.name}</strong> rolled a <strong class="text-amber-300">${rolled}</strong>!`);
+            setStatus(`🎲 Rolled a <strong class="text-amber-300">${rolled}</strong>! Moving forward...`);
+
+            await sleep(300);
+
+            // Check if roll exceeds 100
+            const targetSquare = player.pos + rolled;
+            if (targetSquare > 100) {
+                const needed = 100 - player.pos;
+                setStatus(`Almost at 100! You need an exact <strong class="text-amber-300">${needed}</strong> to reach Square 100.`);
+                addLog(`✨ <strong>${player.name}</strong> needed ${needed} to land on 100, staying on ${player.pos}.`);
+                await sleep(900);
+                await finishTurn();
+                return;
+            }
+
+            // Move step-by-step
+            for (let stepSq = player.pos + 1; stepSq <= targetSquare; stepSq++) {
+                player.pos = stepSq;
+                sfx.step();
+                updateTokenPositions(state.turn);
+                await sleep(260);
+            }
+
+            // Check if player reached Square 100!
+            if (player.pos === 100) {
+                triggerVictory(state.turn);
+                return;
+            }
+
+            // Check special squares: Ladder, Snake, or Star!
+            if (LADDERS[player.pos]) {
+                const dest = LADDERS[player.pos];
+                await triggerQuizChallenge({
+                    type: "ladder",
+                    from: player.pos,
+                    to: dest
+                });
+            } else if (SNAKES[player.pos]) {
+                const dest = SNAKES[player.pos].tail;
+                await triggerQuizChallenge({
+                    type: "snake",
+                    from: player.pos,
+                    to: dest
+                });
+            } else if (STAR_SQUARES.includes(player.pos)) {
+                const dest = Math.min(100, player.pos + 2);
+                await triggerQuizChallenge({
+                    type: "star",
+                    from: player.pos,
+                    to: dest
+                });
+            } else {
+                await finishTurn();
+            }
+        }
+
+        /**************************************************************
+         * 10. EDUCATIONAL QUIZ CHALLENGE ENGINE
+         **************************************************************/
+        function pickNextQuestion() {
+            const filterVal = state.pillarFilter;
+            let pool = QUESTION_BANK.map((q, idx) => ({ ...q, idx }));
+
+            if (filterVal !== "all") {
+                const pId = parseInt(filterVal, 10);
+                pool = pool.filter(item => item.pillar === pId);
+            }
+
+            let unused = pool.filter(item => !state.usedQuestionIndices.has(item.idx));
+            if (unused.length === 0) {
+                // Reset used questions for this filter so questions never run out
+                pool.forEach(item => state.usedQuestionIndices.delete(item.idx));
+                unused = pool;
+            }
+
+            const chosen = unused[Math.floor(Math.random() * unused.length)];
+            state.usedQuestionIndices.add(chosen.idx);
+
+            const remaining = QUESTION_BANK.length - state.usedQuestionIndices.size;
+            document.getElementById("questionBankCounter").textContent = `${remaining} Unique Cards Left`;
+
+            return chosen;
+        }
+
+        function triggerQuizChallenge(eventInfo) {
+            return new Promise(async (resolve) => {
+                const currentPlayer = state.players[state.turn];
+                const isBotTurn = (state.mode === "1P" && state.turn === 2);
+                const kidAnswersForBot = document.getElementById("chkAnswerForBot").checked;
+
+                // If Bot is set to auto-answer on its own without opening the modal
+                if (isBotTurn && !kidAnswersForBot) {
+                    setStatus(`🤖 <strong>Hudhud Bot</strong> is thinking about a Pillars of Faith question...`);
+                    await sleep(1100);
+                    const botCorrect = Math.random() < 0.72; // Friendly bot gets 72% right
+                    const qObj = pickNextQuestion();
+                    await applyQuizOutcome(eventInfo, botCorrect, qObj);
+                    resolve();
+                    return;
+                }
+
+                sfx.quizPopup();
+                const qObj = pickNextQuestion();
+                const pillarMeta = PILLARS_INFO[qObj.pillar];
+
+                const modal = document.getElementById("quizModal");
+                const banner = document.getElementById("quizEventBanner");
+                const iconBox = document.getElementById("quizEventIcon");
+                const titleEl = document.getElementById("quizEventTitle");
+                const subEl = document.getElementById("quizEventSubtitle");
+                const pillarBadge = document.getElementById("quizPillarBadge");
+                const turnOwner = document.getElementById("quizTurnOwner");
+                const qText = document.getElementById("quizQuestionText");
+                const optionsContainer = document.getElementById("quizOptionsContainer");
+                const feedbackBox = document.getElementById("quizFeedbackBox");
+
+                feedbackBox.classList.add("hidden");
+
+                // Configure Banner by Event Type (Ladder, Snake, or Star)
+                if (eventInfo.type === "ladder") {
+                    banner.className = "rounded-2xl p-3.5 mb-4 flex items-center gap-3 border bg-emerald-950/80 border-emerald-400/50 text-emerald-200";
+                    iconBox.className = "w-12 h-12 rounded-2xl bg-emerald-400 text-slate-950 flex items-center justify-center text-2xl shrink-0 shadow";
+                    iconBox.textContent = "🪜";
+                    titleEl.textContent = "Ladder Knowledge Boost!";
+                    subEl.textContent = `Answer right to climb from Square ${eventInfo.from} up to Square ${eventInfo.to}!`;
+                } else if (eventInfo.type === "snake") {
+                    banner.className = "rounded-2xl p-3.5 mb-4 flex items-center gap-3 border bg-rose-950/80 border-rose-400/50 text-rose-200";
+                    iconBox.className = "w-12 h-12 rounded-2xl bg-rose-400 text-slate-950 flex items-center justify-center text-2xl shrink-0 shadow";
+                    iconBox.textContent = "🛡️";
+                    titleEl.textContent = "Snake Faith Shield Challenge!";
+                    subEl.textContent = `Answer right to activate your Faith Shield and avoid sliding to Square ${eventInfo.to}!`;
+                } else {
+                    banner.className = "rounded-2xl p-3.5 mb-4 flex items-center gap-3 border bg-amber-950/80 border-amber-400/50 text-amber-200";
+                    iconBox.className = "w-12 h-12 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center text-2xl shrink-0 shadow";
+                    iconBox.textContent = "⭐";
+                    titleEl.textContent = "Iman Star Bonus Square!";
+                    subEl.textContent = `Answer right to jump +2 bonus spaces forward to Square ${eventInfo.to}!`;
+                }
+
+                pillarBadge.innerHTML = `<i class="fa-solid ${pillarMeta.icon}"></i> ${pillarMeta.title}`;
+                turnOwner.textContent = isBotTurn ? `Helping Hudhud Bot!` : `${currentPlayer.name}'s Question`;
+                qText.textContent = qObj.q;
+
+                // Render Options
+                optionsContainer.innerHTML = "";
+                const letters = ["A", "B", "C", "D"];
+
+                qObj.options.forEach((optText, idx) => {
+                    const btn = document.createElement("button");
+                    btn.className = "w-full text-left p-3 sm:p-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 border-2 border-slate-700 hover:border-amber-400 text-white font-semibold text-sm sm:text-base flex items-center gap-3 transition active:scale-[0.99]";
+                    btn.innerHTML = `
+                        <span class="w-7 h-7 rounded-lg bg-slate-900 border border-slate-600 text-amber-300 font-heading font-bold flex items-center justify-center shrink-0">
+                            ${letters[idx]}
+                        </span>
+                        <span class="flex-1">${optText}</span>
+                    `;
+
+                    btn.addEventListener("click", () => {
+                        // Disable all option buttons once answered
+                        const allBtns = optionsContainer.querySelectorAll("button");
+                        allBtns.forEach(b => b.disabled = true);
+
+                        const isCorrect = (idx === qObj.answer);
+
+                        allBtns.forEach((b, bIdx) => {
+                            if (bIdx === qObj.answer) {
+                                b.className = "w-full text-left p-3 sm:p-3.5 rounded-xl bg-emerald-600/30 border-2 border-emerald-400 text-emerald-100 font-bold text-sm sm:text-base flex items-center gap-3";
+                            } else if (bIdx === idx && !isCorrect) {
+                                b.className = "w-full text-left p-3 sm:p-3.5 rounded-xl bg-rose-600/30 border-2 border-rose-400 text-rose-100 font-semibold text-sm sm:text-base flex items-center gap-3";
+                            } else {
+                                b.classList.add("opacity-50");
+                            }
+                        });
+
+                        // Play Sound & Show Explanation
+                        if (isCorrect) {
+                            sfx.correct();
+                            feedbackBox.className = "mt-4 p-4 rounded-2xl border bg-emerald-950/90 border-emerald-400 text-emerald-100";
+                            document.getElementById("quizFeedbackIcon").textContent = "🌟";
+                            document.getElementById("quizFeedbackTitle").textContent =
+                                eventInfo.type === "ladder" ? "Masha'Allah! Correct! Climbing the Ladder!" :
+                                eventInfo.type === "snake"  ? "Alhamdulillah! Faith Shield Activated!" :
+                                                              "Masha'Allah! Star Bonus Earned (+2)!";
+                        } else {
+                            sfx.wrong();
+                            feedbackBox.className = "mt-4 p-4 rounded-2xl border bg-rose-950/90 border-rose-400 text-rose-100";
+                            document.getElementById("quizFeedbackIcon").textContent = "💡";
+                            document.getElementById("quizFeedbackTitle").textContent =
+                                eventInfo.type === "ladder" ? "Good Try! You'll stay at the bottom this time." :
+                                eventInfo.type === "snake"  ? "Oops! Sliding down the snake—keep learning!" :
+                                                              "Good Try! Remember this fact for next time!";
+                        }
+
+                        document.getElementById("quizFeedbackExplanation").textContent = qObj.explanation;
+                        feedbackBox.classList.remove("hidden");
+
+                        const btnContinue = document.getElementById("btnQuizContinue");
+                        btnContinue.onclick = async () => {
+                            modal.classList.add("hidden");
+                            modal.classList.remove("flex");
+                            await applyQuizOutcome(eventInfo, isCorrect, qObj);
+                            resolve();
+                        };
+                    });
+
+                    optionsContainer.appendChild(btn);
+                });
+
+                modal.classList.remove("hidden");
+                modal.classList.add("flex");
+            });
+        }
+
+        async function applyQuizOutcome(eventInfo, isCorrect, qObj) {
+            const player = state.players[state.turn];
+            const pillarMeta = PILLARS_INFO[qObj.pillar];
+
+            if (isCorrect) {
+                player.score++;
+                if (!player.badges[qObj.pillar]) {
+                    player.badges[qObj.pillar] = true;
+                    addLog(`🏅 <strong>${player.name}</strong> earned the <strong class="text-amber-300">${pillarMeta.short} Badge</strong>!`);
+                }
+                renderPillarBadges();
+            }
+
+            if (eventInfo.type === "ladder") {
+                if (isCorrect) {
+                    setStatus(`🪜 Masha'Allah! <strong>${player.name}</strong> answered right and climbs to Square <strong>${eventInfo.to}</strong>!`);
+                    addLog(`🪜 <strong>${player.name}</strong> climbed Ladder ${eventInfo.from} → <strong class="text-emerald-300">${eventInfo.to}</strong>!`);
+                    sfx.climbLadder();
+                    player.pos = eventInfo.to;
+                    updateTokenPositions(state.turn);
+                    await sleep(650);
+                } else {
+                    setStatus(`📚 <strong>${player.name}</strong> stays at Square ${eventInfo.from}. Next ladder insha'Allah!`);
+                    addLog(`🪜 <strong>${player.name}</strong> stayed at bottom of Ladder ${eventInfo.from}.`);
+                    await sleep(450);
+                }
+            } else if (eventInfo.type === "snake") {
+                if (isCorrect) {
+                    setStatus(`🛡️ Alhamdulillah! <strong>${player.name}</strong>'s Faith Shield blocked the snake at Square ${eventInfo.from}!`);
+                    addLog(`🛡️ <strong>${player.name}</strong> blocked the Snake at Square ${eventInfo.from}!`);
+                    await sleep(550);
+                } else {
+                    setStatus(`🐍 Oh no! <strong>${player.name}</strong> slides down from ${eventInfo.from} to Square <strong>${eventInfo.to}</strong>!`);
+                    addLog(`🐍 <strong>${player.name}</strong> slid down Snake ${eventInfo.from} → <strong class="text-rose-300">${eventInfo.to}</strong>.`);
+                    sfx.slideSnake();
+                    player.pos = eventInfo.to;
+                    updateTokenPositions(state.turn);
+                    await sleep(650);
+                }
+            } else if (eventInfo.type === "star") {
+                if (isCorrect) {
+                    setStatus(`⭐ Iman Star Boost! <strong>${player.name}</strong> jumps +2 spaces to Square <strong>${eventInfo.to}</strong>!`);
+                    addLog(`⭐ <strong>${player.name}</strong> got Star Boost ${eventInfo.from} → <strong class="text-amber-300">${eventInfo.to}</strong>!`);
+                    sfx.climbLadder();
+                    player.pos = eventInfo.to;
+                    updateTokenPositions(state.turn);
+                    await sleep(600);
+
+                    if (player.pos === 100) {
+                        triggerVictory(state.turn);
+                        return;
+                    }
+                } else {
+                    setStatus(`⭐ <strong>${player.name}</strong> stays on Star Square ${eventInfo.from}.`);
+                    await sleep(450);
+                }
+            }
+
+            await finishTurn();
+        }
+
+        async function finishTurn() {
+            // Switch Turn
+            state.turn = state.turn === 1 ? 2 : 1;
+            updateTurnUI();
+
+            const nextPlayer = state.players[state.turn];
+
+            // If it's Hudhud Bot's turn in 1P mode, roll automatically after a short pause
+            if (state.mode === "1P" && state.turn === 2) {
+                setStatus(`🤖 <strong>Hudhud Bot</strong> is getting ready to roll...`);
+                await sleep(850);
+                state.isBusy = false;
+                handleRollDice();
+            } else {
+                state.isBusy = false;
+                document.getElementById("btnRollDice").disabled = false;
+                setStatus(`🎲 It's <strong>${nextPlayer.name}</strong>'s turn! Roll the dice!`);
+            }
+        }
+
+        /**************************************************************
+         * 11. VICTORY & CONFETTI CELEBRATION
+         **************************************************************/
+        let confettiAnimId = null;
+
+        function triggerVictory(winnerNum) {
+            sfx.victory();
+            const winner = state.players[winnerNum];
+            const badgeCount = Object.values(winner.badges).filter(Boolean).length;
+
+            document.getElementById("victoryWinnerTitle").textContent = `${winner.name} Wins!`;
+            document.getElementById("victoryStatCorrect").textContent = winner.score;
+            document.getElementById("victoryStatBadges").textContent = `${badgeCount} / 6`;
+
+            const modal = document.getElementById("victoryModal");
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+
+            startConfetti();
+        }
+
+        function startConfetti() {
+            const canvas = document.getElementById("confettiCanvas");
+            canvas.classList.remove("hidden");
+            const ctx = canvas.getContext("2d");
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const colors = ["#fbbf24", "#10b981", "#38bdf8", "#f43f5e", "#a855f7", "#ffffff"];
+            const pieces = Array.from({ length: 110 }, () => ({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height - canvas.height,
+                size: Math.random() * 8 + 5,
+                speedY: Math.random() * 3 + 2,
+                speedX: (Math.random() - 0.5) * 2.5,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                angle: Math.random() * 360,
+                spin: (Math.random() - 0.5) * 8
+            }));
+
+            function drawFrame() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                pieces.forEach(p => {
+                    p.y += p.speedY;
+                    p.x += p.speedX;
+                    p.angle += p.spin;
+                    if (p.y > canvas.height) {
+                        p.y = -15;
+                        p.x = Math.random() * canvas.width;
+                    }
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate((p.angle * Math.PI) / 180);
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                    ctx.restore();
+                });
+                confettiAnimId = requestAnimationFrame(drawFrame);
+            }
+            drawFrame();
+        }
+
+        function stopConfetti() {
+            if (confettiAnimId) cancelAnimationFrame(confettiAnimId);
+            document.getElementById("confettiCanvas").classList.add("hidden");
+        }
+
+        /**************************************************************
+         * 12. RESET GAME & MODE SWITCHING
+         **************************************************************/
+        function resetGame() {
+            stopConfetti();
+            state.turn = 1;
+            state.isBusy = false;
+
+            const p2Name = state.mode === "1P" ? "Hudhud Bot" : "Explorer Zayd (P2)";
+            const p2IconClass = state.mode === "1P" ? "fa-solid fa-robot" : "fa-solid fa-moon";
+
+            state.players = {
+                1: {
+                    name: "Explorer Noor (P1)",
+                    pos: 1,
+                    score: 0,
+                    badges: { 1: false, 2: false, 3: false, 4: false, 5: false, 6: false }
+                },
+                2: {
+                    name: p2Name,
+                    pos: 1,
+                    score: 0,
+                    badges: { 1: false, 2: false, 3: false, 4: false, 5: false, 6: false }
+                }
+            };
+
+            document.getElementById("p2Name").textContent = p2Name;
+            document.getElementById("tokenP2Icon").className = `${p2IconClass} text-sm sm:text-base`;
+            document.getElementById("cardP2Icon").className = p2IconClass;
+
+            document.getElementById("btnRollDice").disabled = false;
+            document.getElementById("victoryModal").classList.add("hidden");
+            document.getElementById("victoryModal").classList.remove("flex");
+
+            renderDiceFace(6);
+            updateTokenPositions();
+            renderPillarBadges();
+            updateTurnUI();
+
+            document.getElementById("adventureLog").innerHTML = `
+                <div>🌟 Bismillah! New game started! Reach Square 100 while mastering the 6 Pillars of Faith!</div>
+            `;
+            setStatus("Roll the dice to start your journey across the 6 Pillars of Faith!");
+        }
+
+        /**************************************************************
+         * 13. EVENT LISTENERS & INITIALIZATION
+         **************************************************************/
+        window.addEventListener("DOMContentLoaded", () => {
+            buildBoard();
+            resetGame();
+
+            // Roll Dice Button & Spacebar shortcut
+            document.getElementById("btnRollDice").addEventListener("click", handleRollDice);
+            window.addEventListener("keydown", (e) => {
+                if (e.code === "Space") {
+                    const anyModalOpen = ["quizModal", "studyModal", "rulesModal", "victoryModal"].some(
+                        id => !document.getElementById(id).classList.contains("hidden")
+                    );
+                    if (!anyModalOpen && !state.isBusy) {
+                        e.preventDefault();
+                        handleRollDice();
+                    }
+                }
+            });
+
+            // 1P vs 2P Mode Buttons
+            const btn1P = document.getElementById("mode1P");
+            const btn2P = document.getElementById("mode2P");
+            const botOptionRow = document.getElementById("botQuizOptionRow");
+
+            btn1P.addEventListener("click", () => {
+                if (state.mode === "1P") return;
+                state.mode = "1P";
+                btn1P.className = "px-3 py-1.5 rounded-lg text-xs sm:text-sm font-heading font-semibold bg-amber-400 text-slate-950 shadow transition";
+                btn2P.className = "px-3 py-1.5 rounded-lg text-xs sm:text-sm font-heading font-semibold text-slate-300 hover:text-white transition";
+                botOptionRow.classList.remove("hidden");
+                resetGame();
+            });
+
+            btn2P.addEventListener("click", () => {
+                if (state.mode === "2P") return;
+                state.mode = "2P";
+                btn2P.className = "px-3 py-1.5 rounded-lg text-xs sm:text-sm font-heading font-semibold bg-amber-400 text-slate-950 shadow transition";
+                btn1P.className = "px-3 py-1.5 rounded-lg text-xs sm:text-sm font-heading font-semibold text-slate-300 hover:text-white transition";
+                botOptionRow.classList.add("hidden");
+                resetGame();
+            });
+
+            // Pillar Topic Filter
+            document.getElementById("pillarFilter").addEventListener("change", (e) => {
+                state.pillarFilter = e.target.value;
+                state.usedQuestionIndices.clear();
+            });
+
+            // Study Guide Modal
+            const studyModal = document.getElementById("studyModal");
+            document.getElementById("btnStudyGuide").addEventListener("click", () => {
+                studyModal.classList.remove("hidden");
+                studyModal.classList.add("flex");
+            });
+            const closeStudy = () => {
+                studyModal.classList.add("hidden");
+                studyModal.classList.remove("flex");
+            };
+            document.getElementById("btnCloseStudy").addEventListener("click", closeStudy);
+            document.getElementById("btnGotItStudy").addEventListener("click", closeStudy);
+
+            // Rules Modal
+            const rulesModal = document.getElementById("rulesModal");
+            document.getElementById("btnHowToPlay").addEventListener("click", () => {
+                rulesModal.classList.remove("hidden");
+                rulesModal.classList.add("flex");
+            });
+            const closeRules = () => {
+                rulesModal.classList.add("hidden");
+                rulesModal.classList.remove("flex");
+            };
+            document.getElementById("btnCloseRules").addEventListener("click", closeRules);
+            document.getElementById("btnStartFromRules").addEventListener("click", closeRules);
+
+            // Sound Toggle
+            document.getElementById("btnSoundToggle").addEventListener("click", () => {
+                sfx.enabled = !sfx.enabled;
+                const icon = document.getElementById("soundIcon");
+                icon.className = sfx.enabled ? "fa-solid fa-volume-high" : "fa-solid fa-volume-xmark text-rose-400";
+            });
+
+            // Reset / Play Again Buttons
+            document.getElementById("btnNewGame").addEventListener("click", resetGame);
+            document.getElementById("btnPlayAgainVictory").addEventListener("click", resetGame);
+        });
+    </script>
+</body>
+</html>
